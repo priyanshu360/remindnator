@@ -1,0 +1,20 @@
+# Compiled Object files, Static and Dynamic libs (Shared Objects)
+*.o
+*.a
+*.so
+
+# Folders
+_obj
+_test
+
+# Compiled Go packages
+*.exe
+*.test
+
+# Build files
+build/
+bin/
+
+# Dependency directories
+vendor/
+*.env
