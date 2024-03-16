@@ -1,4 +1,4 @@
-package googletasks
+package googletask
 
 import (
 	"context"
@@ -15,11 +15,10 @@ import (
 )
 
 type taskList struct {
-	id            string
-	name          string
-	notifier      []sink.Sink
-	tasks         []event.Event
-	nextFetchTime time.Time
+	id     string
+	name   string
+	sinks  []sink.Sink
+	events []event.Event
 }
 
 var tasksService *gtasks.Service
@@ -29,15 +28,27 @@ func Init() (err error) {
 	return err
 }
 
-func NewTaskList(id string) (*taskList, error) {
-	tasks, err := tasksService.Tasks.List(id).Do()
+func New(title string) (*taskList, error) {
+	tasks, err := tasksService.Tasklists.List().Do()
 	if err != nil {
 		return nil, err
 	}
 
+	var id string
+	for _, t := range tasks.Items {
+		if title == t.Title {
+			id = t.Id
+			break
+		}
+	}
+
+	if len(id) == 0 {
+		return nil, fmt.Errorf("Invalid Task List Title %s", title)
+	}
+
 	return &taskList{
 		id:   id,
-		name: tasks.Etag,
+		name: title,
 	}, nil
 }
 
@@ -46,7 +57,7 @@ func (tl *taskList) String() string {
 }
 
 func (tl *taskList) Fetch() error {
-	today := time.Now().UTC().Format("2006-01-02") // Format: YYYY-MM-DD
+	today := time.Now().UTC().Format("?2006-01-02") // Format: YYYY-MM-DD
 	timeMin := today + "T00:00:00Z"
 	timeMax := today + "T23:59:59Z"
 	tasks, err := tasksService.Tasks.List(tl.id).Do(googleapi.QueryParameter("dueMax", timeMax), googleapi.QueryParameter("dueMin", timeMin))
@@ -55,10 +66,14 @@ func (tl *taskList) Fetch() error {
 		return err
 	}
 
-	tl.tasks = make([]event.Event, 0)
+	tl.events = make([]event.Event, 0)
 	for _, t := range tasks.Items {
-		// Process each task item
-		fmt.Println(t)
+		tt, err := time.Parse(time.RFC3339, t.Due)
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+		tl.events = append(tl.events, event.NewEvent(t.Title, tt, t.Completed != nil))
 	}
 	return nil
 }
@@ -68,12 +83,12 @@ func (tl *taskList) FetchAll() error {
 }
 
 func (tl *taskList) Publish() error {
-	for _, notif := range tl.notifier {
-		notif.Publish(tl.tasks)
+	for _, notif := range tl.sinks {
+		notif.Publish(tl.events)
 	}
 	return nil
 }
 
-func (tl *taskList) Subscribe(notifier sink.Sink) {
-	tl.notifier = append(tl.notifier, notifier)
+func (tl *taskList) Subscribe(sinks ...sink.Sink) {
+	tl.sinks = append(tl.sinks, sinks...)
 }

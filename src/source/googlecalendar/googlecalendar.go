@@ -15,11 +15,10 @@ import (
 )
 
 type source struct {
-	id            string
-	name          string
-	sinks         []sink.Sink
-	events        []event.Event
-	nextFetchTime time.Time
+	id     string
+	name   string
+	sinks  []sink.Sink
+	events []event.Event
 }
 
 var gcService *gc.Service
@@ -60,15 +59,15 @@ func (gcal *source) Fetch() error {
 
 	gcal.events = make([]event.Event, 0)
 	for _, e := range events.Items {
-
-		fmt.Println(e)
-		// t, err := time.Parse(time.RFC3339, e.Start.DateTime)
-		// if err != nil {
-		// 	fmt.Println(err)
-		// 	continue
-		// }
-		// gcal.events = append(gcal.events, event.NewEvent(e.Summary, t, false))
-		// fmt.Println(gcal.events[0].String())
+		t := time.Now()
+		if e.Start != nil {
+			t, err = time.Parse(time.RFC3339, e.Start.DateTime)
+			if err != nil {
+				fmt.Println(err)
+				continue
+			}
+		}
+		gcal.events = append(gcal.events, event.NewEvent(e.Summary, t, time.Now().After(t)))
 	}
 	return nil
 }
@@ -84,6 +83,6 @@ func (gcal *source) Publish() error {
 	return nil
 }
 
-func (gcal *source) Subscribe(s sink.Sink) {
-	gcal.sinks = append(gcal.sinks, s)
+func (gcal *source) Subscribe(sinks ...sink.Sink) {
+	gcal.sinks = append(gcal.sinks, sinks...)
 }

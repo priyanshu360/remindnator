@@ -8,6 +8,8 @@ import (
 	"github.com/priyanshu360/remindnator/src/config"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
+	"google.golang.org/api/calendar/v3"
+	"google.golang.org/api/tasks/v1"
 )
 
 var (
@@ -15,7 +17,7 @@ var (
 		RedirectURL:  "http://localhost:8080/callback",
 		ClientID:     config.CLIENT_ID,
 		ClientSecret: config.CLIENT_SECRET,
-		Scopes:       []string{"https://www.googleapis.com/auth/calendar"},
+		Scopes:       []string{calendar.CalendarScope, tasks.TasksScope},
 		Endpoint:     google.Endpoint,
 	}
 	// Some random string, random for each request

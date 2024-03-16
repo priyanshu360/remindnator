@@ -7,5 +7,5 @@ type Source interface {
 	Fetch() error
 	FetchAll() error
 	Publish() error
-	Subscribe(sink.Sink)
+	Subscribe(...sink.Sink)
 }

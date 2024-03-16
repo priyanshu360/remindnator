@@ -12,8 +12,8 @@ type Watcher struct {
 	sources []source.Source
 }
 
-func (w *Watcher) Subscribe(s source.Source) {
-	w.sources = append(w.sources, s)
+func (w *Watcher) Subscribe(sources ...source.Source) {
+	w.sources = append(w.sources, sources...)
 }
 
 func NewWatcher() *Watcher {
@@ -23,6 +23,7 @@ func NewWatcher() *Watcher {
 func (w *Watcher) Run() {
 	for {
 		for _, source := range w.sources {
+			fmt.Println(source.String())
 			if err := source.Fetch(); err != nil {
 				fmt.Println(err)
 				continue
