@@ -32,6 +32,7 @@ const htmlIndex = `<html><body>
 var server *http.Server
 
 func oauth() {
+	// TODO #4 : Write oauth token to file for reuse
 	http.HandleFunc("/", handleMain)
 	http.HandleFunc("/login", handleGoogleLogin)
 	http.HandleFunc("/callback", handleGoogleCallback)
@@ -40,7 +41,7 @@ func oauth() {
 }
 
 func handleMain(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, htmlIndex)
+	fmt.Fprint(w, htmlIndex)
 }
 
 func handleGoogleLogin(w http.ResponseWriter, r *http.Request) {

@@ -21,6 +21,7 @@ func init() {
 }
 
 func main() {
+	// TODO #3 : Check for local.env file and update envs
 	cal, err := gcal.New("priyanshurajput360@gmail.com")
 	if err != nil {
 		log.Fatal(err)
