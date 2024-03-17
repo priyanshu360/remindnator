@@ -1,7 +1,7 @@
 package slackchannel
 
 import (
-	"fmt"
+	"log"
 	"time"
 
 	"github.com/priyanshu360/remindnator/src/config"
@@ -10,7 +10,7 @@ import (
 	"github.com/slack-go/slack"
 )
 
-type SlackChannel struct {
+type slackChannel struct {
 	name   string
 	id     string
 	sinks  []sink.Sink
@@ -24,7 +24,7 @@ func Init() error {
 	return nil
 }
 
-func New(channelId string) (*SlackChannel, error) {
+func New(channelId string) (*slackChannel, error) {
 	channel, err := slackBot.GetConversationInfo(&slack.GetConversationInfoInput{
 		ChannelID:         channelId,
 		IncludeLocale:     false,
@@ -33,53 +33,58 @@ func New(channelId string) (*SlackChannel, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &SlackChannel{
-		id:   channelId,
-		name: channel.Name,
+
+	return &slackChannel{
+		name:   channel.Name,
+		id:     channel.ID,
+		sinks:  []sink.Sink{},
+		events: []event.Event{},
 	}, nil
 }
 
-func (sc *SlackChannel) String() string {
+func (sc *slackChannel) String() string {
 	return sc.name
 }
 
-func (sc *SlackChannel) Fetch() error {
-	today := time.Now().UTC().Format("2006-01-02")
-	timeMin := today + "T00:00:00Z"
-	timeMax := today + "T23:59:59Z"
+func (sc *slackChannel) Fetch() error {
+	// TODO #1 : Debug oldest latest not working
+	// today := time.Now().UTC().Format("2006-01-02")
+	// timeMin := today + "T00:00:00Z"
+	// timeMax := today + "T23:59:59Z"
 
-	params := slack.GetConversationRepliesParameters{
+	params := slack.GetConversationHistoryParameters{
 		ChannelID: sc.id,
-		Latest:    timeMax,
-		Oldest:    timeMin,
+		// Latest:    timeMax,
+		// Oldest: timeMin,
 	}
 
-	replies, _, _, err := slackBot.GetConversationReplies(&params)
+	resp, err := slackBot.GetConversationHistory(&params)
 	if err != nil {
 		return err
 	}
 
+	log.Println(resp.Messages)
 	// Process fetched replies
-	for _, reply := range replies {
-		fmt.Println(reply.Text)
-		// Process each reply as needed
+	for _, reply := range resp.Messages {
+		// TODO #2 : parse and process
+		sc.events = append(sc.events, event.NewEvent(reply.Text, time.Now(), false))
 	}
 
 	return nil
 }
 
-func (sc *SlackChannel) FetchAll() error {
+func (sc *slackChannel) FetchAll() error {
 	// Implement fetching all events from Slack channel
 	return nil
 }
 
-func (sc *SlackChannel) Publish() error {
+func (sc *slackChannel) Publish() error {
 	for _, sink := range sc.sinks {
 		sink.Publish(sc.events)
 	}
 	return nil
 }
 
-func (sc *SlackChannel) Subscribe(sinks ...sink.Sink) {
+func (sc *slackChannel) Subscribe(sinks ...sink.Sink) {
 	sc.sinks = append(sc.sinks, sinks...)
 }
