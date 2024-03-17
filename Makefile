@@ -11,7 +11,7 @@ BINARY_NAME=remindnator.out
 all: test build 
 
 build:
-	$(GOBUILD) -C ./src -o $(BINARY_NAME) -x
+	$(GOBUILD) -C ./cmd -o $(BINARY_NAME) -x
 
 test:
 	$(GOTEST) -v ./...
