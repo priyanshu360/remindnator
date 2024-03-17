@@ -6,12 +6,12 @@ GOTEST=$(GOCMD) test
 GOGET=$(GOCMD) get
 
 # Binary names
-BINARY_NAME=remindnator.out
+BINARY_NAME=remindnator
 
 all: test build 
 
 build:
-	$(GOBUILD) -C ./src -o $(BINARY_NAME) -x
+	$(GOBUILD) -C ./cmd -o ../bin/$(BINARY_NAME) -x
 
 test:
 	$(GOTEST) -v ./...
