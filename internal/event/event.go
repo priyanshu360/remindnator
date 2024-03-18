@@ -17,8 +17,7 @@ type event struct {
 	isDone bool
 }
 
-// TODO #5 : For consistent naming use New()
-func NewEvent(n string, t time.Time, d bool) *event {
+func New(n string, t time.Time, d bool) *event {
 	return &event{
 		name:   n,
 		time:   t,

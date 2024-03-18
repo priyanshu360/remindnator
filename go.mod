@@ -4,6 +4,7 @@ go 1.21.3
 
 require (
 	github.com/gorhill/cronexpr v0.0.0-20180427100037-88b0669f7d75
+	github.com/joho/godotenv v1.5.1
 	github.com/slack-go/slack v0.12.5
 	golang.org/x/oauth2 v0.18.0
 	google.golang.org/api v0.170.0

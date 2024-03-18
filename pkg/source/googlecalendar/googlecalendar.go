@@ -67,7 +67,7 @@ func (gcal *source) Fetch() error {
 				continue
 			}
 		}
-		gcal.events = append(gcal.events, event.NewEvent(e.Summary, t, time.Now().After(t)))
+		gcal.events = append(gcal.events, event.New(e.Summary, t, time.Now().After(t)))
 	}
 	return nil
 }

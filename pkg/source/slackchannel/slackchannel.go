@@ -67,7 +67,7 @@ func (sc *slackChannel) Fetch() error {
 	// Process fetched replies
 	for _, reply := range resp.Messages {
 		// TODO #2 : parse and process
-		sc.events = append(sc.events, event.NewEvent(reply.Text, time.Now(), false))
+		sc.events = append(sc.events, event.New(reply.Text, time.Now(), false))
 	}
 
 	return nil

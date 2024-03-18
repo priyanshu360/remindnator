@@ -72,7 +72,7 @@ func (tl *taskList) Fetch() error {
 			fmt.Println(err)
 			continue
 		}
-		tl.events = append(tl.events, event.NewEvent(t.Title, tt, t.Completed != nil))
+		tl.events = append(tl.events, event.New(t.Title, tt, t.Completed != nil))
 	}
 	return nil
 }
