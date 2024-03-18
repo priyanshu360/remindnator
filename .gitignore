@@ -18,3 +18,4 @@ bin/
 # Dependency directories
 vendor/
 *.env
+token.json

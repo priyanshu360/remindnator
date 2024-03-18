@@ -2,10 +2,15 @@ package main
 
 import (
 	"context"
+	"crypto/rand"
+	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/priyanshu360/remindnator/config"
+	"github.com/priyanshu360/remindnator/util"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/calendar/v3"
@@ -14,14 +19,12 @@ import (
 
 var (
 	googleOauthConfig = &oauth2.Config{
-		RedirectURL:  "http://localhost:8080/callback",
-		ClientID:     config.CLIENT_ID,
-		ClientSecret: config.CLIENT_SECRET,
-		Scopes:       []string{calendar.CalendarScope, tasks.TasksScope},
-		Endpoint:     google.Endpoint,
+		RedirectURL: "http://localhost:8080/callback",
+		Scopes:      []string{calendar.CalendarScope, tasks.TasksScope},
+		Endpoint:    google.Endpoint,
 	}
 	// Some random string, random for each request
-	oauthStateString = "random"
+	oauthStateString, _ = generateRandomString(8)
 )
 
 const htmlIndex = `<html><body>
@@ -31,8 +34,19 @@ const htmlIndex = `<html><body>
 
 var server *http.Server
 
+func generateRandomString(length int) (string, error) {
+	bytes := make([]byte, length)
+	if _, err := rand.Read(bytes); err != nil {
+		return "", err
+	}
+	return hex.EncodeToString(bytes)[:length], nil
+}
+
 func oauth() {
-	// TODO #4 : Write oauth token to file for reuse
+	if err := util.LoadTokenFromFile(); err == nil {
+		return
+	}
+
 	http.HandleFunc("/", handleMain)
 	http.HandleFunc("/login", handleGoogleLogin)
 	http.HandleFunc("/callback", handleGoogleCallback)
@@ -40,11 +54,29 @@ func oauth() {
 	fmt.Println(server.ListenAndServe())
 }
 
+func saveTokenToFile(token *oauth2.Token) {
+	file, err := json.MarshalIndent(token, "", " ")
+	if err != nil {
+		fmt.Println("Error marshalling token:", err)
+		return
+	}
+
+	err = os.WriteFile("token.json", file, 0644)
+	if err != nil {
+		fmt.Println("Error writing token to file:", err)
+		return
+	}
+
+	fmt.Println("Token saved to file.")
+}
+
 func handleMain(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, htmlIndex)
 }
 
 func handleGoogleLogin(w http.ResponseWriter, r *http.Request) {
+	googleOauthConfig.ClientID = config.CLIENT_ID
+	googleOauthConfig.ClientSecret = config.CLIENT_SECRET
 	url := googleOauthConfig.AuthCodeURL(oauthStateString)
 	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
 }
@@ -66,9 +98,9 @@ func handleGoogleCallback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Println("token -> ", token) // Print the token for testing purposes (
+	saveTokenToFile(token)
 
 	config.CLIENT = oauth2.NewClient(context.Background(), oauth2.StaticTokenSource(token))
-	fmt.Println("client -> ", config.CLIENT)
+	fmt.Println("Token exchanged successfully.")
 	server.Shutdown(context.Background())
 }
