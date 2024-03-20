@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/priyanshu360/remindnator/config"
-	"github.com/priyanshu360/remindnator/pkg/source"
+	"github.com/priyanshu360/remindnator/internal/source"
 )
 
 type Watcher struct {

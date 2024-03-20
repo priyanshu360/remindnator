@@ -7,7 +7,7 @@ import (
 
 	"github.com/priyanshu360/remindnator/config"
 	"github.com/priyanshu360/remindnator/internal/event"
-	"github.com/priyanshu360/remindnator/pkg/sink"
+	"github.com/priyanshu360/remindnator/internal/sink"
 
 	gc "google.golang.org/api/calendar/v3"
 	"google.golang.org/api/googleapi"
@@ -59,15 +59,21 @@ func (gcal *source) Fetch() error {
 
 	gcal.events = make([]event.Event, 0)
 	for _, e := range events.Items {
-		t := time.Now()
+		st := time.Now()
+		et := time.Now()
 		if e.Start != nil {
-			t, err = time.Parse(time.RFC3339, e.Start.DateTime)
+			st, err = time.Parse(time.RFC3339, e.Start.DateTime)
+			if err != nil {
+				fmt.Println(err)
+				continue
+			}
+			et, err = time.Parse(time.RFC3339, e.End.DateTime)
 			if err != nil {
 				fmt.Println(err)
 				continue
 			}
 		}
-		gcal.events = append(gcal.events, event.New(e.Summary, t, time.Now().After(t)))
+		gcal.events = append(gcal.events, event.New(e.Summary, st, et, time.Now().After(et)))
 	}
 	return nil
 }

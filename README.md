@@ -8,3 +8,29 @@ Notification Alerts: Receive timely reminders via email, SMS, or push notificati
 Recurring Reminders: Schedule recurring reminders for tasks that repeat daily, weekly, monthly, or custom intervals.
 Multiple Platforms: Access Remindnator on various devices including web browsers, mobile phones, and tablets for seamless productivity.
 Integration: Integrate with popular calendar apps such as Google Calendar, Apple Calendar, and Outlook Calendar for synchronized reminders.
+
+---
+
+// TODO #13 : MongoDB data modeling
+
+source table
+CRUD
+
+sink table
+CRUD
+
+event table
+create
+Update(completed or nextSchedule)
+Get(nextSchedule)
+
+user table
+CRUD user
+
+user - source table
+when user register a source [create user = ?, source = ?]
+[get source, where user = ?]
+
+source - sink table
+when source watcher add(event) [get sink where source = xyz]
+when subscribe(sink) [create sink = ?, source = ?]

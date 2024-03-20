@@ -6,15 +6,13 @@ import (
 
 	"github.com/priyanshu360/remindnator/config"
 	"github.com/priyanshu360/remindnator/internal/event"
-	"github.com/priyanshu360/remindnator/pkg/sink"
+	"github.com/priyanshu360/remindnator/internal/sink"
 	"github.com/slack-go/slack"
 )
 
 type slackChannel struct {
-	name   string
-	id     string
-	sinks  []sink.Sink
-	events []event.Event
+	name string
+	id   string
 }
 
 var slackBot *slack.Client
@@ -35,10 +33,8 @@ func New(channelId string) (*slackChannel, error) {
 	}
 
 	return &slackChannel{
-		name:   channel.Name,
-		id:     channel.ID,
-		sinks:  []sink.Sink{},
-		events: []event.Event{},
+		name: channel.Name,
+		id:   channel.ID,
 	}, nil
 }
 
@@ -67,7 +63,7 @@ func (sc *slackChannel) Fetch() error {
 	// Process fetched replies
 	for _, reply := range resp.Messages {
 		// TODO #2 : parse and process
-		sc.events = append(sc.events, event.New(reply.Text, time.Now(), false))
+		sc.events = append(sc.events, event.New(reply.Text, time.Now(), time.Now(), false))
 	}
 
 	return nil

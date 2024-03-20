@@ -7,7 +7,7 @@ import (
 
 	"github.com/priyanshu360/remindnator/config"
 	"github.com/priyanshu360/remindnator/internal/event"
-	"github.com/priyanshu360/remindnator/pkg/sink"
+	"github.com/priyanshu360/remindnator/internal/sink"
 	"google.golang.org/api/googleapi"
 	"google.golang.org/api/option"
 	gtasks "google.golang.org/api/tasks/v1"
@@ -67,12 +67,17 @@ func (tl *taskList) Fetch() error {
 
 	tl.events = make([]event.Event, 0)
 	for _, t := range tasks.Items {
-		tt, err := time.Parse(time.RFC3339, t.Due)
+		et, err := time.Parse(time.RFC3339, t.Due)
 		if err != nil {
 			fmt.Println(err)
 			continue
 		}
-		tl.events = append(tl.events, event.New(t.Title, tt, t.Completed != nil))
+		st, err := time.Parse(time.RFC3339, t.Updated)
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+		tl.events = append(tl.events, event.New(t.Title, st, et, t.Completed != nil))
 	}
 	return nil
 }
