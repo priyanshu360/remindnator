@@ -2,6 +2,8 @@ package util
 
 import (
 	"context"
+	"crypto/rand"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -45,4 +47,13 @@ func LoadLocalEnvFile() error {
 		return err
 	}
 	return nil
+}
+
+func GenerateUUID(length int) string {
+	bytes := make([]byte, length)
+	_, err := rand.Read(bytes)
+	if err != nil {
+		panic(err)
+	}
+	return hex.EncodeToString(bytes)
 }

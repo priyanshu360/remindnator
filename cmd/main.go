@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/priyanshu360/remindnator/internal/sink/slackmessage"
+	gcal "github.com/priyanshu360/remindnator/internal/source/googlecalendar"
+	"github.com/priyanshu360/remindnator/internal/source/googletask"
 	"github.com/priyanshu360/remindnator/internal/watcher"
-	"github.com/priyanshu360/remindnator/pkg/sink/slackmessage"
-	gcal "github.com/priyanshu360/remindnator/pkg/source/googlecalendar"
-	"github.com/priyanshu360/remindnator/pkg/source/googletask"
 	"github.com/priyanshu360/remindnator/util"
 )
 
