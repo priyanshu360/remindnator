@@ -27,10 +27,46 @@ Get(nextSchedule)
 user table
 CRUD user
 
-user - source table
+user -> source table
 when user register a source [create user = ?, source = ?]
 [get source, where user = ?]
 
-source - sink table
-when source watcher add(event) [get sink where source = xyz]
+source -> sink table
+when source watcher add(event) [get sink where source = ?]
 when subscribe(sink) [create sink = ?, source = ?]
+
+event -> source
+
+user 1-N source
+source 1-N sink
+event N-1 source
+
+user collection
+{
+user_id :
+email :
+source : [
+id :
+title :
+metadata : {}
+sink : [ref(sink)]
+]
+
+}
+
+event_collection
+{
+id :
+source_id : ref(source)
+title :
+description :
+schedule :
+
+}
+
+sink_collection
+{
+id :
+title :
+metadata :
+}

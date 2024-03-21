@@ -50,7 +50,7 @@ func LoadLocalEnvFile() error {
 }
 
 func GenerateUUID(length int) string {
-	bytes := make([]byte, length/2)
+	bytes := make([]byte, length)
 	_, err := rand.Read(bytes)
 	if err != nil {
 		panic(err)

@@ -15,7 +15,7 @@ type Event interface {
 }
 
 type event struct {
-	name          string
+	Title         string
 	start         time.Time
 	end           time.Time
 	schedule      schedule.Schedule
@@ -26,7 +26,7 @@ type event struct {
 func New(n string, st time.Time, et time.Time, d bool) *event {
 	year, month, day := time.Now().Date()
 	return &event{
-		name:          n,
+		Title:         n,
 		start:         st,
 		end:           et,
 		isDone:        d,
@@ -36,7 +36,7 @@ func New(n string, st time.Time, et time.Time, d bool) *event {
 
 func (e *event) String() string {
 	// TODO #12 : event string function change according to presence of start/end
-	return fmt.Sprintf("%s -> Starts at %s ", e.name, e.start)
+	return fmt.Sprintf("%s -> Starts at %s ", e.Title, e.start)
 }
 
 func (e *event) Done() {

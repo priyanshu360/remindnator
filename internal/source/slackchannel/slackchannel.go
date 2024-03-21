@@ -7,12 +7,17 @@ import (
 	"github.com/priyanshu360/remindnator/config"
 	"github.com/priyanshu360/remindnator/internal/event"
 	"github.com/priyanshu360/remindnator/internal/sink"
+	"github.com/priyanshu360/remindnator/internal/source"
+	"github.com/priyanshu360/remindnator/util"
 	"github.com/slack-go/slack"
 )
 
-type slackChannel struct {
-	name string
-	id   string
+type SlackChannel struct {
+	Type      source.SourceEnum
+	Title     string
+	ID        string
+	SinkIDs   []string
+	ChannelID string
 }
 
 var slackBot *slack.Client
@@ -22,7 +27,7 @@ func Init() error {
 	return nil
 }
 
-func New(channelId string) (*slackChannel, error) {
+func New(channelId string) (*SlackChannel, error) {
 	channel, err := slackBot.GetConversationInfo(&slack.GetConversationInfoInput{
 		ChannelID:         channelId,
 		IncludeLocale:     false,
@@ -32,24 +37,25 @@ func New(channelId string) (*slackChannel, error) {
 		return nil, err
 	}
 
-	return &slackChannel{
-		name: channel.Name,
-		id:   channel.ID,
+	return &SlackChannel{
+		Title:     channel.Name,
+		ID:        util.GenerateUUID(5),
+		ChannelID: channel.ID,
 	}, nil
 }
 
-func (sc *slackChannel) String() string {
-	return sc.name
+func (sc *SlackChannel) String() string {
+	return sc.Title
 }
 
-func (sc *slackChannel) Fetch() error {
+func (sc *SlackChannel) Fetch() error {
 	// TODO #1 : Debug oldest latest not working
 	// today := time.Now().UTC().Format("2006-01-02")
 	// timeMin := today + "T00:00:00Z"
 	// timeMax := today + "T23:59:59Z"
 
 	params := slack.GetConversationHistoryParameters{
-		ChannelID: sc.id,
+		ChannelID: sc.ChannelID,
 		// Latest:    timeMax,
 		// Oldest: timeMin,
 	}
@@ -69,18 +75,18 @@ func (sc *slackChannel) Fetch() error {
 	return nil
 }
 
-func (sc *slackChannel) FetchAll() error {
+func (sc *SlackChannel) FetchAll() error {
 	// Implement fetching all events from Slack channel
 	return nil
 }
 
-func (sc *slackChannel) Publish() error {
+func (sc *SlackChannel) Publish() error {
 	for _, sink := range sc.sinks {
 		sink.Publish(sc.events)
 	}
 	return nil
 }
 
-func (sc *slackChannel) Subscribe(sinks ...sink.Sink) {
+func (sc *SlackChannel) Subscribe(sinks ...sink.Sink) {
 	sc.sinks = append(sc.sinks, sinks...)
 }
